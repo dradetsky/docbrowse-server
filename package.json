@@ -1,0 +1,13 @@
+{
+  "scripts": {
+    "dev": "node server.js",
+    "bug": "node inspect server.js"
+  },
+  "dependencies": {
+    "bluebird": "^3.5.0",
+    "hapi": "^16.4.3",
+    "inert": "^4.2.0",
+    "lodash": "^4.17.4",
+    "sqlite3": "^3.1.8"
+  }
+}
