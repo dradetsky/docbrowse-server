@@ -4,6 +4,10 @@ import axios from 'axios'
 import map from 'lodash/map'
 import queryString from 'query-string'
 
+// AFAICT, if I only import QueryResult, webpack doesn't see the
+// others.
+import { QueryResult, ResultGroup, ResultItem } from 'comps'
+
 const inst = axios.create({
   headers: {
     'Access-Control-Allow-Origin': '*',
@@ -26,8 +30,13 @@ class Search extends React.Component {
     let val = e.target.value
     this.queryAndDisplay(val)
   }
+  searchUrl (val, type, merge) {
+    let param = val
+    let url = `http://localhost:3000/s/${param}?type=${type}&merge=${merge}`
+    return url
+  }
   queryAndDisplay (val) {
-    let url = `http://localhost:3000/word/${val}`
+    let url = this.searchUrl(val, 'sub', 'merge')
     let cfg = {
       headers: {
         'Access-Control-Request-Origin': 'localhost'
@@ -44,57 +53,47 @@ class Search extends React.Component {
         <input
           type='text'
           onChange={this.handleTyping} />
-        <p>{this.state.inputText}</p>
         <QueryResult groups={this.state.results} />
       </div>
     )
   }
 }
 
-class QueryResult extends React.Component {
-  render () {
-    let groups = map(this.props.groups, (group, key) => {
-      return (<ResultGroup key={key} group={group} group_key={key} />)
+class DualSearch extends Search {
+  constructor () {
+    super()
+    this.state = {resultsL: {}, resultsR: {}}
+  }
+
+  queryAndDisplay (val) {
+    let urlL = this.searchUrl(val, '')
+    let urlR = this.searchUrl(val, 'sub')
+    let cfg = {
+      headers: {
+        'Access-Control-Request-Origin': 'localhost'
+      }
+    }
+
+    inst.get(urlL, cfg).then((res) => {
+      this.setState({resultsL: res.data})
     })
-    return (<div>{groups}</div>)
-  }
-}
-
-class ResultGroup extends React.Component {
-  render () {
-    let group_key = this.props.group_key
-    let items = this.props.group.map((data, idx) => {
-      let key = `${group_key}_${idx}`
-      return (<ResultItem key={key} data={data} />)
+    inst.get(urlR, cfg).then((res) => {
+      this.setState({resultsR: res.data})
     })
-    return (<div key={group_key}>{items}</div>)
-  }
-}
-
-class ResultItem extends React.Component {
-  explicit () {
-    return (
-      <span>
-        <p>{this.props.data.type}</p>
-        <p>{this.props.data.name}</p>
-        <p>{this.props.data.path}</p>
-      </span>
-    )
-  }
-
-  clean () {
-    let data = this.props.data
-    return (
-      <p>
-        <strong>{data.type}: </strong>
-        <a href={data.link}>{data.name}</a>
-      </p>
-    )
   }
 
   render () {
-    // return this.explicit()
-    return this.clean()
+    return (
+      <div>
+        <div style={{overflow: 'auto'}}>
+        <input
+          type='text'
+          onChange={this.handleTyping} />
+        </div>
+        <QueryResult styleCmd={{float: 'left'}} groups={this.state.resultsL} />
+        <QueryResult styleCmd={{float: 'right'}} groups={this.state.resultsR} />
+      </div>
+    )
   }
 }
 

@@ -1,6 +1,7 @@
 const Hapi = require('hapi')
 const inert = require('inert')
 const query = require('./query.js')
+const merge = require('lodash/merge')
 
 const server = new Hapi.Server()
 server.connection({
@@ -18,6 +19,27 @@ server.route({
     cors: true
   },
   handler: query.word
+})
+
+server.route({
+  method: 'GET',
+  path: '/s/{msg}',
+  config: {
+    cors: true,
+  },
+  handler: query.search
+})
+
+server.route({
+  method: 'GET',
+  path: '/q/{msg}',
+  config: {
+    cors: true,
+  },
+  handler: (q, r) => {
+    debugger
+    r('ok\n')
+  }
 })
 
 server.register(inert, (err) => {

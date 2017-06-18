@@ -16,6 +16,10 @@ const config = {
     filename: '[name].[chunkhash].js',
     chunkFilename: '[name].[chunkhash].js'
   },
+  resolve: {
+    modules: ['src', 'node_modules'],
+    extensions: ['.js', '.json', '.jsx']
+  },
   plugins: [
     new webpack.optimize.CommonsChunkPlugin({
       name: "vendor",
