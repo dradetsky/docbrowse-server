@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom'
 import axios from 'axios'
 import map from 'lodash/map'
 import queryString from 'query-string'
+import keyboardJS from 'keyboardjs'
 
 // AFAICT, if I only import QueryResult, webpack doesn't see the
 // others.
@@ -21,10 +22,19 @@ class Search extends React.Component {
     this.handleTyping = this.handleTyping.bind(this)
   }
   componentDidMount () {
-    let qry = queryString.parse(location.search)
+    this.host = window.origin
+    let qry = queryString.parse(window.location.search)
     if (qry.q) {
+      this.box.value = qry.q
       this.queryAndDisplay(qry.q)
     }
+    keyboardJS.bind('ctrl + i', (e) => {
+      if (this.box == document.activeElement) {
+        this.box.blur()
+      } else {
+        this.box.focus()
+      }
+    })
   }
   handleTyping (e) {
     let val = e.target.value
@@ -32,7 +42,7 @@ class Search extends React.Component {
   }
   searchUrl (val, type, merge) {
     let param = val
-    let url = `http://localhost:3000/s/${param}?type=${type}&merge=${merge}`
+    let url = `${this.host}/s/${param}?type=${type}&merge=${merge}`
     return url
   }
   queryAndDisplay (val) {
@@ -51,6 +61,8 @@ class Search extends React.Component {
     return (
       <div>
         <input
+          id='box'
+          ref={(box) => { this.box = box }}
           type='text'
           onChange={this.handleTyping} />
         <QueryResult groups={this.state.results} />
@@ -87,6 +99,7 @@ class DualSearch extends Search {
       <div>
         <div style={{overflow: 'auto'}}>
         <input
+          id='box'
           type='text'
           onChange={this.handleTyping} />
         </div>

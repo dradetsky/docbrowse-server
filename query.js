@@ -14,19 +14,47 @@ const docsets = [
   'sqla'
 ]
 
+const altDbDir = path.join(docsetRoot, 'python')
+
+const docsetOpts = {
+  marshmallow: {},
+  NodeJS: {},
+  py3: {},
+  sqla: {},
+  flask: {
+    dbName: 'flask.docSet.dsidx',
+    dbDir: altDbDir,
+    uriBase: path.join('docsets/python/flask')
+  },
+  alembic: {
+    dbName: 'alembic.docSet.dsidx',
+    dbDir: altDbDir,
+    uriBase: path.join('docsets/python/alembic')
+  },
+  ansible: {
+    dbName: 'ansible.docSet.dsidx',
+    dbDir: altDbDir,
+    uriBase: path.join('docsets/python/ansible')
+  },
+}
+
 class DocsetConfig {
-  constructor (name) {
+  constructor (name, opts) {
     this.name = name
+    this.dbName = (opts.dbName ? opts.dbName : 'docSet.dsidx')
     this.dirname = `${name}.docset`
     this.dir = path.join(docsetRoot, this.dirname) 
-    this.dbPath = path.join(this.dir, 'Contents/Resources/docSet.dsidx')
+    let defaultDbDir = path.join(this.dir, 'Contents/Resources')
+    this.dbDir = (opts.dbDir ? opts.dbDir : defaultDbDir)
+    this.dbPath = path.join(this.dbDir, this.dbName)
     this.docsPath = path.join(this.dir, 'Contents/Resources/Documents')
-    this.uriBase = path.join('docsets', this.dirname, 'Contents/Resources/Documents')
+    let defaultUriBase = path.join('docsets', this.dirname, 'Contents/Resources/Documents')
+    this.uriBase = (opts.uriBase ? opts.uriBase : defaultUriBase)
     this.db = new sqlite3.Database(this.dbPath, sqlite3.OPEN_READONLY)
   }
 }
 
-const dbs = _.mapValues(_.keyBy(docsets), (name) => new DocsetConfig(name))
+const dbs = _.mapValues(docsetOpts, (opts, name) => new DocsetConfig(name, opts))
 
 const mkPredicate = (words) => {
   let pattern = words.reduce((acc, w) => {
