@@ -1,0 +1,24 @@
+---
+
+marshmallow: {}
+
+NodeJS: {}
+
+py3: {}
+
+sqla: {}
+
+flask:
+  dbName: flask.docSet.dsidx
+  dbDir: ./docsets/python
+  uriBase: docsets/python/flask
+
+alembic:
+  dbName: alembic.docSet.dsidx
+  dbDir: ./docsets/python
+  uriBase: docsets/python/alembic
+
+ansible:
+  dbName: ansible.docSet.dsidx
+  dbDir: ./docsets/python
+  uriBase: docsets/python/ansible

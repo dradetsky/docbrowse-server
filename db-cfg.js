@@ -2,40 +2,14 @@ const Promise = require('bluebird')
 const path = require('path')
 const _ = require('lodash')
 const sqlite3 = require('sqlite3')
+const yaml = require('js-yaml')
+const fs = require('fs')
 Promise.promisifyAll(sqlite3)
 
 // const docsetRoot = path.join(os.homedir(), '.docsets')
 const docsetRoot = path.join(__dirname, 'docsets')
 
-const docsets = [
-  'marshmallow',
-  'py3',
-  'sqla'
-]
-
-const altDbDir = path.join(docsetRoot, 'python')
-
-const docsetOpts = {
-  marshmallow: {},
-  NodeJS: {},
-  py3: {},
-  sqla: {},
-  flask: {
-    dbName: 'flask.docSet.dsidx',
-    dbDir: altDbDir,
-    uriBase: path.join('docsets/python/flask')
-  },
-  alembic: {
-    dbName: 'alembic.docSet.dsidx',
-    dbDir: altDbDir,
-    uriBase: path.join('docsets/python/alembic')
-  },
-  ansible: {
-    dbName: 'ansible.docSet.dsidx',
-    dbDir: altDbDir,
-    uriBase: path.join('docsets/python/ansible')
-  },
-}
+const docsetOpts = yaml.safeLoad(fs.readFileSync('cfg.yml'))
 
 class DocsetConfig {
   constructor (name, opts) {
