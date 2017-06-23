@@ -49,7 +49,7 @@ server.route({
 server.route({
   method: 'GET',
   path: '/info',
-  handler: info.dbInfo
+  handler: info.dbContents
 })
 
 server.register(inert, (err) => {
