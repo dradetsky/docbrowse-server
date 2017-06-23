@@ -1,6 +1,7 @@
 const Hapi = require('hapi')
 const inert = require('inert')
 const query = require('./query.js')
+const info = require('./info')
 const merge = require('lodash/merge')
 
 const server = new Hapi.Server()
@@ -40,6 +41,12 @@ server.route({
     debugger
     r('ok\n')
   }
+})
+
+server.route({
+  method: 'GET',
+  path: '/info',
+  handler: info.dbInfo
 })
 
 server.register(inert, (err) => {

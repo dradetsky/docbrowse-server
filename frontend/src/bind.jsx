@@ -2,7 +2,7 @@
 const bindings = {
   'ctrl + ;': 'cmdShowKeys',
   'ctrl + i': 'cmdSwitchFocus',
-  'ctrl + .': 'unboundKey',
+  'ctrl + .': 'cmdShowDbInfo',
   'ctrl + ,': 'unboundKey',
   'ctrl + m': 'unboundKey',
   'ctrl + b': 'unboundKey'
