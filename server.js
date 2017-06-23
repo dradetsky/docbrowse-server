@@ -3,6 +3,7 @@ const inert = require('inert')
 const query = require('./query.js')
 const info = require('./info')
 const merge = require('lodash/merge')
+const reqLog = require('./log')
 
 const server = new Hapi.Server()
 server.connection({
@@ -12,6 +13,8 @@ server.connection({
     cors: true
   }
 })
+
+server.on('response', reqLog)
 
 server.route({
   method: 'GET',
