@@ -1,5 +1,6 @@
 import React from 'react'
 import map from 'lodash/map'
+import bindings from 'bind'
 
 class QueryResult extends React.Component {
   render () {
@@ -49,4 +50,19 @@ class ResultItem extends React.Component {
   }
 }
 
-export { QueryResult, ResultGroup, ResultItem }
+class KeyHelp extends React.Component {
+  render () {
+    const bindList = map(bindings, (cmd, keySeq) => {
+      let key = `${cmd}_${keySeq}`
+      return <h3 key={key}><b>{keySeq}</b> {cmd}</h3>
+    })
+    return (
+      <div style={{float: 'right'}}>
+        <h2>keys</h2>
+        {bindList}
+      </div>
+    )
+  }
+}
+
+export { QueryResult, ResultGroup, ResultItem, KeyHelp }

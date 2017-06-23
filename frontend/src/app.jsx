@@ -4,10 +4,11 @@ import axios from 'axios'
 import map from 'lodash/map'
 import queryString from 'query-string'
 import keyboardJS from 'keyboardjs'
+import bindings from 'bind'
 
 // AFAICT, if I only import QueryResult, webpack doesn't see the
 // others.
-import { QueryResult, ResultGroup, ResultItem } from 'comps'
+import { QueryResult, ResultGroup, ResultItem, KeyHelp } from 'comps'
 
 const inst = axios.create({
   headers: {
@@ -18,7 +19,10 @@ const inst = axios.create({
 class Search extends React.Component {
   constructor () {
     super()
-    this.state = {results: {}}
+    this.state = {
+      results: {},
+      showKeys: true,
+    }
     this.handleTyping = this.handleTyping.bind(this)
   }
   componentDidMount () {
@@ -28,14 +32,34 @@ class Search extends React.Component {
       this.box.value = qry.q
       this.queryAndDisplay(qry.q)
     }
-    keyboardJS.bind('ctrl + i', (e) => {
-      if (this.box == document.activeElement) {
-        this.box.blur()
-      } else {
-        this.box.focus()
-      }
-    })
+    for (let keySeq in bindings) {
+      let cmdName = bindings[keySeq]
+      let fn = this[cmdName]
+      let cmd = fn.bind(this)
+      keyboardJS.bind(keySeq, (e) => {
+        cmd()
+      })
+    }
   }
+
+  unboundKey () {
+    console.log('unbound key')
+  }
+
+  cmdSwitchFocus () {
+    if (this.box == document.activeElement) {
+      this.box.blur()
+    } else {
+      this.box.focus()
+    }
+  }
+
+  cmdShowKeys () {
+    this.setState(prevState => ({
+      showKeys: ! prevState.showKeys
+    }))
+  }
+
   handleTyping (e) {
     let val = e.target.value
     this.queryAndDisplay(val)
@@ -58,6 +82,10 @@ class Search extends React.Component {
     })
   }
   render () {
+    let keyHelp = null
+    if (this.state.showKeys) {
+      keyHelp = (<KeyHelp />)
+    }
     return (
       <div>
         <input
@@ -65,6 +93,7 @@ class Search extends React.Component {
           ref={(box) => { this.box = box }}
           type='text'
           onChange={this.handleTyping} />
+          {keyHelp}
         <QueryResult groups={this.state.results} />
       </div>
     )
