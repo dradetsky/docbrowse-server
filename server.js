@@ -18,15 +18,6 @@ server.on('response', reqLog)
 
 server.route({
   method: 'GET',
-  path: '/word/{word}',
-  config: {
-    cors: true
-  },
-  handler: query.word
-})
-
-server.route({
-  method: 'GET',
   path: '/s/{msg}',
   config: {
     cors: true,

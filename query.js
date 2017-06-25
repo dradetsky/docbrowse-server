@@ -5,6 +5,8 @@ const _ = require('lodash')
 
 const dbConf = require('./db-cfg')
 
+const queryConf = dbConf.options.querying
+
 const mkPredicate = (words) => {
   let pattern = words.reduce((acc, w) => {
     return acc += `${w}%`
@@ -16,7 +18,7 @@ const mkPredicate = (words) => {
 const mkSql = (words) => {
   let predicate = mkPredicate(words)
   let order = 'order by length(name), lower(name)'
-  let limit = 'limit 10'
+  let limit = `limit ${queryConf.limit}`
   let qry = `select type, name, path from searchIndex ${predicate} ${order} ${limit}`
   return qry
 }
@@ -24,7 +26,7 @@ const mkSql = (words) => {
 const mkSubquerySql = (words) => {
   let fields = 'type, name, path'
   let order = 'order by length(name), lower(name)'
-  let limit = 'limit 10'
+  let limit = `limit ${queryConf.limit}`
   let nestedQry = words.reduce((acc, w) => {
     let qry = `select ${fields} from (${acc}) where name like '%${w}%'`
     return qry
@@ -56,16 +58,6 @@ const search = (words, type) => {
   return parQuery(sql)
 }
 
-const wordQuery = (word) => {
-  let ps = _.mapValues(dbConf.dbs, (config) => {
-    let qry = `select type, name, path from searchIndex where name like '%${word}%' limit 10`
-    let resP = config.db.allAsync(qry)
-    let addExtraData = addExtraDataFn(config)
-    return resP.then(addExtraData)
-  })
-  return Promise.props(ps)
-}
-
 const addExtraDataFn = (config) => {
   let fn = (results) => {
     return results.map((r) => {
@@ -80,14 +72,6 @@ const addExtraDataFn = (config) => {
     })
   }
   return fn
-}
-
-const wordQueryHandler = (q, r) => {
-  let word = q.params.word
-  wordQuery(word).then((resobj) => {
-    let out = JSON.stringify(resobj)
-    r(out)
-  })
 }
 
 const searchHandler = (q, r) => {
@@ -118,7 +102,6 @@ const docsetRoute = {
 }
 
 module.exports = {
-  word: wordQueryHandler,
   search: searchHandler,
   docsetRoute: docsetRoute
 }

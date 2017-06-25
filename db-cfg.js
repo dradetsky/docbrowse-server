@@ -2,14 +2,13 @@ const Promise = require('bluebird')
 const path = require('path')
 const _ = require('lodash')
 const sqlite3 = require('sqlite3')
-const yaml = require('js-yaml')
-const fs = require('fs')
+const req = require('require-yml')
 Promise.promisifyAll(sqlite3)
 
 // const docsetRoot = path.join(os.homedir(), '.docsets')
 const docsetRoot = path.join(__dirname, 'docsets')
 
-const docsetOpts = yaml.safeLoad(fs.readFileSync('cfg.yml'))
+const docsetOpts = req('./cfg')
 
 class DocsetConfig {
   constructor (name, opts) {
@@ -37,7 +36,7 @@ class DocsetConfig {
   }
 }
 
-const dbs = _.mapValues(docsetOpts, (opts, name) => new DocsetConfig(name, opts))
+const dbs = _.mapValues(docsetOpts.dbs, (opts, name) => new DocsetConfig(name, opts))
 
 module.exports = {
   dbs: dbs,
